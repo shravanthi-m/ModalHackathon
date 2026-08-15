@@ -44,6 +44,34 @@ kinematic detection has a real ceiling here. This is the honest, defensible resu
 Multimodal *done carefully* (release-specific hand-open, gaze-locked-to-object) is real
 future work, not a hackathon-timeframe win.
 
+## UPDATE 2 — careful multimodal tested too; the real blocker is DATA, not features
+Refined gate (`scratchpad/test_multimodal_v2.py`): impulse + **sustained hand release**
+AND **gaze redirect** (head turns to a new heading), sequential/specific. Result:
+flagged 1 (a false positive), **caught 0/2 real** — the strict signature isn't even
+present in our 2 confirmed drops. Four feature families now tested, none separate:
+`wrist 2/15 · correction 2/13 · naive-multimodal 2/13 · careful-multimodal 0/1`.
+
+**Root cause:** we have **2 confirmed failures** out of ~15 watched. You cannot tune or
+validate a detector on 2 positives — every feature result is anecdotal. The wall is data,
+not cleverness.
+
+## Requirements to continue building this productively
+1. **A labeled failure set (blocker #1).** ~30–50 confirmed failure clips + matched
+   negatives, from a labeling push (watch N random wash_dishes clips) or failure-annotated
+   episodes. Nothing below is buildable or trustworthy without this.
+2. **An object / contact signal (blocker #2).** The true discriminator — *object leaves the
+   hand* — is NOT in wrist/head/hand pose. Get it from either (a) the RGB frames + a vision
+   model (object separates from hand / enters sink), or (b) a grasp/contact-state channel.
+   Pose is a proxy that doesn't carry this event.
+3. **Refined pose features, tuned on the labeled set:** release-specific aperture (hand
+   stays empty), gaze redirect-and-fixate, impulse→release→gaze ordering.
+4. **Held-out validation:** precision@k on video, on episodes NOT used for tuning.
+5. **Scale on Modal** once validated — the audit harness already exists (`audit_modal.py`).
+
+**If we don't finish:** the submission is the rigorous ceiling result (4 approaches, video-
+validated) + this concrete roadmap. That's a stronger, more honest Track-3 answer than a
+number that doesn't survive a judge watching one clip.
+
 ## Artifacts to resume from
 - Labeled clips + verdicts: `~/Documents/Hackathon/clips/`, `clips_recal/` (+ scorecards)
 - wash_dishes scores: `audit_washdishes.parquet`, `audit_wd_recal.parquet`
